@@ -20,10 +20,14 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - run: npm install
       - run: npx cap add android
-      - name: Ruxsatlarni qo'shish
+      - name: Native azon kodi va ruxsatlar
         run: |
+          D=android/app/src/main/java/uz/vaqt/namoz
           M=android/app/src/main/AndroidManifest.xml
-          for p in VIBRATE CAMERA ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION POST_NOTIFICATIONS SCHEDULE_EXACT_ALARM USE_EXACT_ALARM RECEIVE_BOOT_COMPLETED WAKE_LOCK; do
+          mkdir -p $D
+          cp MainActivity.java AlarmPlugin.java AlarmService.java AlarmReceiver.java BootReceiver.java $D/
+          sed -i '/<\/application>/e cat manifest-snippet.xml' $M
+          for p in VIBRATE CAMERA ACCESS_FINE_LOCATION ACCESS_COARSE_LOCATION POST_NOTIFICATIONS SCHEDULE_EXACT_ALARM USE_EXACT_ALARM RECEIVE_BOOT_COMPLETED WAKE_LOCK FOREGROUND_SERVICE FOREGROUND_SERVICE_MEDIA_PLAYBACK USE_FULL_SCREEN_INTENT; do
             sed -i "s#<application#<uses-permission android:name=\"android.permission.$p\" />\n    <application#" $M
           done
       - run: npx capacitor-assets generate --android
